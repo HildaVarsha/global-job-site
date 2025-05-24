@@ -8,7 +8,10 @@ const menuItems = [
   { label: "Home", path: "/" },
   { label: "Jobs", path: "/jobs" },
   //   { label: "Companies", path: "/companies" },
-  { label: "About us", path: "/about" },
+  { label: "Post a Job", path: "/post-jobs" },
+  { label: "Job Applications", path: "/job-applications" },
+  { label: "User", path: "/users" },
+  { label: "Contact us", path: "/contact-us" },
 ];
 
 const Navbar = () => {
@@ -18,7 +21,6 @@ const Navbar = () => {
   const [activePath, setActivePath] = useState(pathname);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
-  console.log(pathname, "pathname");
   useEffect(() => {
     const timeout = setTimeout(() => setIsLoaded(true), 100);
     return () => clearTimeout(timeout);

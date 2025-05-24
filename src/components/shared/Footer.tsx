@@ -1,5 +1,8 @@
+"use client";
+
 import { Briefcase } from "lucide-react";
 import React from "react";
+import Link from "next/link";
 
 const Footer = () => {
   return (
@@ -23,24 +26,36 @@ const Footer = () => {
             <h4 className="font-semibold text-lg mb-4">For Job Seekers</h4>
             <ul className="space-y-2 text-gray-400">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <Link
+                  href="/jobs"
+                  className="hover:text-white transition-colors"
+                >
                   Browse Jobs
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <Link
+                  href="/coming-soon"
+                  className="hover:text-white transition-colors"
+                >
                   Career Resources
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <Link
+                  href="/coming-soon"
+                  className="hover:text-white transition-colors"
+                >
                   Resume Builder
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <Link
+                  href="/coming-soon"
+                  className="hover:text-white transition-colors"
+                >
                   Salary Guide
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -49,24 +64,36 @@ const Footer = () => {
             <h4 className="font-semibold text-lg mb-4">For Employers</h4>
             <ul className="space-y-2 text-gray-400">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <Link
+                  href="/post-jobs"
+                  className="hover:text-white transition-colors"
+                >
                   Post Jobs
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <Link
+                  href="/coming-soon"
+                  className="hover:text-white transition-colors"
+                >
                   Find Candidates
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <Link
+                  href="/coming-soon"
+                  className="hover:text-white transition-colors"
+                >
                   Recruiting Solutions
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <Link
+                  href="/coming-soon"
+                  className="hover:text-white transition-colors"
+                >
                   Pricing
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -75,24 +102,36 @@ const Footer = () => {
             <h4 className="font-semibold text-lg mb-4">Company</h4>
             <ul className="space-y-2 text-gray-400">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <Link
+                  href="/contact-us"
+                  className="hover:text-white transition-colors"
+                >
                   About Us
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <Link
+                  href="/contact-us"
+                  className="hover:text-white transition-colors"
+                >
                   Contact
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <Link
+                  href="/coming-soon"
+                  className="hover:text-white transition-colors"
+                >
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <Link
+                  href="/coming-soon"
+                  className="hover:text-white transition-colors"
+                >
                   Terms of Service
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

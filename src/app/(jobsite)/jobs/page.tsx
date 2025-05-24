@@ -12,13 +12,14 @@ import {
   Heart,
 } from "lucide-react";
 import { JobsBanner } from "@/components/jobs";
+import { useRouter } from "next/navigation";
 
 const AnimatedJobSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isLoaded, setIsLoaded] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
-
+  const router = useRouter();
   // Sample job data
   const jobs = [
     {
@@ -355,6 +356,7 @@ const AnimatedJobSearch = () => {
             {filteredJobs?.map((job: any, index) => (
               <div
                 key={job.id}
+                onClick={() => router.push("/jobs/1")}
                 className={`group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 cursor-pointer border border-gray-100 overflow-hidden ${
                   isLoaded
                     ? "translate-y-0 opacity-100"
