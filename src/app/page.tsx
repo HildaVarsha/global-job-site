@@ -133,10 +133,10 @@ const JobPortalHomepage = () => {
           <Image
             src={heroSlides[currentSlide].backgroundImage}
             alt="Professional background"
-            width={100}
-            height={100}
+            fill
+            priority
             quality={100}
-            className="w-full h-full object-cover transition-all duration-1000 transform scale-105"
+            className="object-cover w-full h-full transition-all duration-1000 transform scale-105"
           />
           <div className="absolute inset-0 bg-black/40" />
           <div

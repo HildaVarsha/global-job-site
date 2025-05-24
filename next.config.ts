@@ -1,6 +1,9 @@
-// next.config.mjs
-export default {
+import { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
   images: {
     domains: ["images.unsplash.com"],
   },
 };
+
+export default nextConfig;
