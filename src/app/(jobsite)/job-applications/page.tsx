@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Search,
   Filter,
@@ -17,6 +17,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import { getAllJobApplications } from "@/services/jobApplication";
 
 interface JobApplication {
   id: string;
@@ -115,8 +116,8 @@ const mockApplications: JobApplication[] = [
 const StatusBadge: React.FC<{ status: JobApplication["status"] }> = ({
   status,
 }) => {
-  const statusConfig = {
-    pending: {
+  const statusConfig: any = {
+    applied: {
       bg: "bg-yellow-100",
       text: "text-yellow-800",
       ring: "ring-yellow-600/20",
@@ -171,8 +172,7 @@ const RatingStars: React.FC<{ rating: number }> = ({ rating }) => {
 };
 
 const JobApplicationTable: React.FC = () => {
-  const [applications, setApplications] =
-    useState<JobApplication[]>(mockApplications);
+  const [applications, setApplications] = useState<JobApplication[]>();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortField, setSortField] =
@@ -180,26 +180,26 @@ const JobApplicationTable: React.FC = () => {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
-  const filteredApplications = applications.filter((app) => {
-    const matchesSearch =
-      app.applicantName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || app.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  // const filteredApplications = applications?.filter((app) => {
+  //   const matchesSearch =
+  //     app.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     app.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  //     app.email.toLowerCase().includes(searchTerm.toLowerCase());
+  //   const matchesStatus = statusFilter === "all" || app.status === statusFilter;
+  //   return matchesSearch && matchesStatus;
+  // });
 
-  const sortedApplications = [...filteredApplications].sort((a, b) => {
-    const aValue = a[sortField];
-    const bValue = b[sortField];
-    const direction = sortDirection === "asc" ? 1 : -1;
+  // const sortedApplications = [...filteredApplications].sort((a, b) => {
+  //   const aValue = a[sortField];
+  //   const bValue = b[sortField];
+  //   const direction = sortDirection === "asc" ? 1 : -1;
 
-    if (typeof aValue === "string" && typeof bValue === "string") {
-      return aValue.localeCompare(bValue) * direction;
-    }
+  //   if (typeof aValue === "string" && typeof bValue === "string") {
+  //     return aValue.localeCompare(bValue) * direction;
+  //   }
 
-    return ((aValue as any) - (bValue as any)) * direction;
-  });
+  //   return ((aValue as any) - (bValue as any)) * direction;
+  // });
 
   const handleSort = (field: keyof JobApplication) => {
     if (sortField === field) {
@@ -238,6 +238,14 @@ const JobApplicationTable: React.FC = () => {
       year: "numeric",
     });
   };
+  const getApplications = async () => {
+    const response = await getAllJobApplications();
+
+    setApplications(response);
+  };
+  useEffect(() => {
+    getApplications();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6">
@@ -310,7 +318,7 @@ const JobApplicationTable: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {sortedApplications.map((application, index) => (
+                {applications?.map((application: any, index) => (
                   <React.Fragment key={application.id}>
                     <tr
                       className="hover:bg-gray-50 transition-all duration-200 cursor-pointer group animate-fade-in-row"
@@ -325,12 +333,12 @@ const JobApplicationTable: React.FC = () => {
                         <div className="flex items-center">
                           <div className="flex-shrink-0 h-10 w-10">
                             <div className="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold transition-transform duration-200 group-hover:scale-105">
-                              {application.applicantName.charAt(0)}
+                              {application.name.charAt(0)}
                             </div>
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
-                              {application.applicantName}
+                              {application.name}
                             </div>
                             <div className="text-sm text-gray-500 flex items-center">
                               <Mail className="h-3 w-3 mr-1" />
@@ -341,20 +349,24 @@ const JobApplicationTable: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">
-                          {application.position}
+                          {application.jobTitle}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        {/* <div className="text-sm text-gray-500">
                           {application.department}
-                        </div>
+                        </div> */}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center text-sm text-gray-500">
                           <Calendar className="h-4 w-4 mr-1" />
-                          {formatDate(application.appliedDate)}
+                          {formatDate(application.created_at)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <StatusBadge status={application.status} />
+                        <StatusBadge
+                          status={
+                            application.status ? application.status : "applied"
+                          }
+                        />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <RatingStars rating={application.rating} />
@@ -379,12 +391,12 @@ const JobApplicationTable: React.FC = () => {
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                             <div className="flex items-center space-x-2">
                               <Phone className="h-4 w-4 text-gray-400" />
-                              <span className="text-gray-600">Phone:</span>
+                              <span className="text-gray-600">email:</span>
                               <span className="font-medium">
-                                {application.phone}
+                                {application.email}
                               </span>
                             </div>
-                            <div className="flex items-center space-x-2">
+                            {/* <div className="flex items-center space-x-2">
                               <Clock className="h-4 w-4 text-gray-400" />
                               <span className="text-gray-600">Experience:</span>
                               <span className="font-medium">
@@ -404,15 +416,16 @@ const JobApplicationTable: React.FC = () => {
                               <span className="font-medium">
                                 {application.location}
                               </span>
-                            </div>
+                            </div> */}
                             <div className="flex items-center space-x-2">
                               <Download className="h-4 w-4 text-gray-400" />
                               <span className="text-gray-600">Resume:</span>
-                              <a
+                              <a 
+                              download
                                 href="#"
                                 className="font-medium text-blue-600 hover:text-blue-800 transition-colors duration-200"
                               >
-                                {application.resume}
+                                {application.resumeUrl}
                               </a>
                             </div>
                           </div>
@@ -427,9 +440,9 @@ const JobApplicationTable: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="mt-6 flex items-center justify-between text-sm text-gray-500 animate-fade-in">
+        {/* <div className="mt-6 flex items-center justify-between text-sm text-gray-500 animate-fade-in">
           <div>
-            Showing {sortedApplications.length} of {applications.length}{" "}
+            Showing {applications?.length} of {applications.length}{" "}
             applications
           </div>
           <div className="flex space-x-2">
@@ -446,7 +459,7 @@ const JobApplicationTable: React.FC = () => {
               Next
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
 
       <style jsx>{`

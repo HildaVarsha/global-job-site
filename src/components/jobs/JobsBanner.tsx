@@ -1,15 +1,20 @@
+"use client";
 import { MapPin, Search } from "lucide-react";
-import React from "react";
+import Link from "next/link";
+import React, { useState } from "react";
 
 const JobsBanner = ({
   isLoaded,
   searchTerm,
   setSearchTerm,
+  totalJobs,
 }: {
   isLoaded: boolean;
   searchTerm: string;
   setSearchTerm: any;
+  totalJobs: number;
 }) => {
+  const [location, setLocation] = useState("");
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900 min-h-screen flex items-center">
       {/* Background Pattern */}
@@ -58,15 +63,15 @@ const JobsBanner = ({
             {/* Quick Stats */}
             <div className="grid grid-cols-3 gap-6 mb-8">
               <div className="text-center">
-                <div className="text-3xl font-bold text-white">50K+</div>
+                <div className="text-3xl font-bold text-white">5K+</div>
                 <div className="text-blue-200 text-sm">Active Jobs</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-white">10K+</div>
+                <div className="text-3xl font-bold text-white">1K+</div>
                 <div className="text-blue-200 text-sm">Companies</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl font-bold text-white">1M+</div>
+                <div className="text-3xl font-bold text-white">1k+</div>
                 <div className="text-blue-200 text-sm">Success Stories</div>
               </div>
             </div>
@@ -100,13 +105,16 @@ const JobsBanner = ({
                   <input
                     type="text"
                     placeholder="Location (optional)"
-                    className="w-full pl-12 pr-4 py-4 text-lg border-0 rounded-xl bg-white/90 backdrop-blur-sm focus:ring-2 focus:ring-white/50 focus:outline-none"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="w-full mb-4 pl-12 pr-4 py-4  text-lg border-0 rounded-xl bg-white/90 backdrop-blur-sm focus:ring-2 focus:ring-white/50 focus:outline-none"
                   />
                 </div>
-
-                <button className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-4 rounded-xl font-bold text-lg hover:from-yellow-500 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 shadow-xl">
-                  Search 50,000+ Jobs
-                </button>
+                <Link href={`/jobs?search=${searchTerm}&location=${location}`}>
+                  <button className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-4 rounded-xl font-bold text-lg hover:from-yellow-500 hover:to-orange-600 transition-all duration-300 transform hover:scale-105 shadow-xl">
+                    Search {totalJobs ? totalJobs : ""} Jobs
+                  </button>
+                </Link>
               </div>
 
               <div className="mt-6 text-center">

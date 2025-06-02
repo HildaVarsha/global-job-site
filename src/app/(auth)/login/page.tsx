@@ -14,6 +14,8 @@ import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { FloatingElements } from "@/components/shared";
+import { login } from "@/services/authServices";
+import { useToast } from "@/hooks/use-toast";
 
 // Yup validation schema
 const validationSchema = Yup.object({
@@ -25,22 +27,40 @@ const LoginForm = () => {
   const router = useRouter();
   const [isLoaded, setIsLoaded] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
-
+  const { toast } = useToast();
   useEffect(() => {
     const timeout = setTimeout(() => setIsLoaded(true), 100);
     return () => clearTimeout(timeout);
   }, []);
 
+  const loginUser = async (values: any) => {
+    const response = await login(values);
+    console.log(response, "loginnn");
+    if (response.status == 201) {
+      localStorage.setItem("token", response?.token);
+      localStorage.setItem("user", JSON.stringify(response?.user));
+      toast({
+        title: "Logged in successfully",
+      });
+      router.push("/");
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong.Please try again later",
+      });
+    }
+  };
   const formik = useFormik({
     initialValues: {
-      email: "sdsd@gmail.com",
-      password: "password",
+      email: "",
+      password: "",
     },
     validationSchema,
     onSubmit: (values) => {
-      console.log("Login submitted", values);
+      loginUser(values);
+      // console.log("Login submitted", values);
       // Add login API call logic here
-      router.push("/");
+      // router.push("/");
     },
   });
 
@@ -177,14 +197,14 @@ const LoginForm = () => {
         </div>
 
         {/* Back to Home */}
-        <div className="text-center mt-8">
+        {/* <div className="text-center mt-8">
           <button
             onClick={() => router.push("/")}
             className="text-gray-600 hover:text-purple-600 font-bold text-lg transition-all duration-300 hover:scale-105 flex items-center justify-center space-x-2 mx-auto"
           >
             <span>← Back to Home</span>
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

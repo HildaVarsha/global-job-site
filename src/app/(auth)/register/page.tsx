@@ -7,18 +7,25 @@ import { User, Mail, Phone, TrendingUp, Lock, LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui";
 import { FloatingElements } from "@/components/shared";
 import { useRouter } from "next/navigation";
+import { register } from "@/services/authServices";
+import { useToast } from "@/hooks/use-toast";
 
 // Validation schema
 const validationSchema = Yup.object({
   fullName: Yup.string().required("Full name is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
-  phone: Yup.string().required("Phone number is required"),
+  phone: Yup.string()
+    .matches(/^[0-9]{10}$/, "Phone number must be exactly 10 digits")
+    .required("Phone number is required"),
   password: Yup.string()
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password")], "Passwords must match")
     .required("Confirm Password is required"),
+  role: Yup.string()
+    .oneOf(["jobPoster", "employee"], "Select a valid role")
+    .required("Role is required"),
 });
 
 type FormValues = {
@@ -27,24 +34,49 @@ type FormValues = {
   phone: string;
   password: string;
   confirmPassword: string;
+  role: "jobPoster" | "employee";
 };
 
 const RegisterForm: React.FC = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const router = useRouter();
+  const { toast } = useToast();
+
+  const registerUser = async (values: FormValues) => {
+    const params = {
+      name: values?.fullName,
+      email: values?.email,
+      password: values?.password,
+      role: values?.role,
+    };
+    const response = await register(params);
+    if (response?.status == 201) {
+      toast({
+        title: "Registered successfully",
+        description: "You can login using registered mail and the password",
+      });
+      router.push("/login");
+    } else {
+      toast({
+        variant: "destructive",
+        title: "Something went wrong. Please try again later",
+      });
+    }
+  };
+
   const formik = useFormik<FormValues>({
     initialValues: {
-      fullName: "sdfsd",
-      email: "sdfsdf@gmail.com",
-      phone: "dsfsdf",
-      password: "password",
-      confirmPassword: "password",
+      fullName: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
+      role: "employee",
     },
     validationSchema,
-    onSubmit: (values: FormValues, actions: FormikHelpers<FormValues>) => {
+    onSubmit: (values, actions) => {
       console.log("Form Submitted", values);
-      actions.setSubmitting(false);
-      router.push("/login");
+      registerUser(values);
     },
   });
 
@@ -127,6 +159,33 @@ const RegisterForm: React.FC = () => {
                   "Confirm Password",
                   "password",
                   Lock
+                )}
+              </div>
+
+              {/* Role Dropdown */}
+              <div className="group w-full">
+                <label
+                  htmlFor="role"
+                  className="block text-sm font-bold text-gray-700 mb-3"
+                >
+                  Register As
+                </label>
+                <select
+                  id="role"
+                  {...formik.getFieldProps("role")}
+                  className={`w-full py-3 pl-4 pr-4 rounded-xl border ${
+                    formik.touched.role && formik.errors.role
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  } focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300`}
+                >
+                  <option value="employee">Job Seeker</option>
+                  <option value="jobPoster">Job Poster</option>
+                </select>
+                {formik.touched.role && formik.errors.role && (
+                  <div className="text-red-500 text-sm mt-1">
+                    {formik.errors.role}
+                  </div>
                 )}
               </div>
 

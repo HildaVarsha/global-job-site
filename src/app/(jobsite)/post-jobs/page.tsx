@@ -19,6 +19,9 @@ import {
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
+import { createJob } from "@/services/jobServices";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 const JobPostFormScreen = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -35,11 +38,36 @@ const JobPostFormScreen = () => {
     requirements: [""],
     benefits: [""],
     skills: [],
+    jobCategory: "",
   });
   const [skillInput, setSkillInput] = useState("");
   const [errors, setErrors] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
 
+  const jobCategory = [
+    {
+      id: 1,
+      name: "IT",
+    },
+    {
+      id: 2,
+      name: "Marketing",
+    },
+    {
+      id: 3,
+      name: "Finance",
+    },
+    {
+      id: 4,
+      name: "HR",
+    },
+    {
+      id: 5,
+      name: "Design",
+    },
+  ];
   useEffect(() => {
     setIsVisible(true);
   }, []);
@@ -150,15 +178,39 @@ const JobPostFormScreen = () => {
   };
 
   const handleSubmit = async () => {
+    const payload = {
+      title: formData.jobTitle,
+      description: formData.description,
+      location: formData?.location,
+      company: formData.company,
+      jobType: formData.jobType,
+      category: formData.jobCategory,
+      minSalary: formData.salaryMin,
+      maxSalary: formData.salaryMax,
+      experienceRequired: formData.experience,
+      skills: formData.skills,
+      benefits: formData.benefits,
+      requirements: formData.requirements,
+    };
     if (validateStep(currentStep)) {
       setIsSubmitting(true);
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setIsSubmitting(false);
-      alert("Job posted successfully!");
+      const response = await createJob(payload);
+      console.log(response, "response");
+      if (response?.status == 201) {
+        toast({
+          title: "Job created successfully",
+        });
+        router.push("/jobs");
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Something went wrong. Please try again later",
+        });
+      }
     }
   };
-
+  console.log(formData, "formData");
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
@@ -190,6 +242,38 @@ const JobPostFormScreen = () => {
                 )}
               </div>
 
+              <div className="space-y-2">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Job Category
+                </label>
+                <div className="relative">
+                  <select
+                    value={formData.jobCategory}
+                    onChange={(e) =>
+                      handleInputChange("jobCategory", e.target.value)
+                    }
+                    className={`w-full px-4 py-3 border-2 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none ${
+                      errors.jobCategory
+                        ? "border-red-300 bg-red-50"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <option value="">Select job category</option>
+                    {jobCategory.map((category) => (
+                      <option key={category.id} value={category.name}>
+                        {category.name}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
+                </div>
+                {errors.jobCategory && (
+                  <div className="flex items-center gap-2 text-red-600 text-sm animate-fade-in">
+                    <AlertCircle className="w-4 h-4" />
+                    {errors.jobCategory}
+                  </div>
+                )}
+              </div>
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-700">
                   Company Name
@@ -349,7 +433,7 @@ const JobPostFormScreen = () => {
                 )}
               </div>
 
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-700">
                   Logo Upload
                 </label>
@@ -357,7 +441,7 @@ const JobPostFormScreen = () => {
                   <Upload className="w-6 h-6 text-gray-400 mx-auto mb-2" />
                   <span className="text-sm text-gray-500">Upload Logo</span>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             <div className="space-y-2">
