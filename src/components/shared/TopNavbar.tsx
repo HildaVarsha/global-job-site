@@ -14,6 +14,15 @@ const adminMenuItems = [
   { label: "User", path: "/users" },
   { label: "Contact us", path: "/contact-us" },
 ];
+const jobPosterMenuItems = [
+  { label: "Home", path: "/" },
+  { label: "Jobs", path: "/jobs" },
+  //   { label: "Companies", path: "/companies" },
+  { label: "Post a Job", path: "/post-jobs" },
+  { label: "Job Applications", path: "/job-applications" },
+  // { label: "User", path: "/users" },
+  { label: "Contact us", path: "/contact-us" },
+];
 
 const userMenuItems = [
   { label: "Home", path: "/" },
@@ -28,11 +37,11 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
   const menuArray =
-    user?.role == "employee"
-      ? userMenuItems
-      : user == "admin"
+    user?.role == "admin"
       ? adminMenuItems
-      : adminMenuItems;
+      : user == "jobPoster"
+      ? jobPosterMenuItems
+      : userMenuItems;
   useEffect(() => {
     const timeout = setTimeout(() => setIsLoaded(true), 100);
     return () => clearTimeout(timeout);
