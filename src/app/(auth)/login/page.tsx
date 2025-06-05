@@ -16,6 +16,7 @@ import * as Yup from "yup";
 import { FloatingElements } from "@/components/shared";
 import { login } from "@/services/authServices";
 import { useToast } from "@/hooks/use-toast";
+import { safeLocalStorage } from "@/lib/utils";
 
 // Yup validation schema
 const validationSchema = Yup.object({
@@ -37,8 +38,8 @@ const LoginForm = () => {
     const response = await login(values);
     console.log(response, "loginnn");
     if (response.status == 201) {
-      localStorage.setItem("token", response?.token);
-      localStorage.setItem("user", JSON.stringify(response?.user));
+      safeLocalStorage.setItem("token", response?.token);
+      safeLocalStorage.setItem("user", JSON.stringify(response?.user));
       toast({
         title: "Logged in successfully",
       });

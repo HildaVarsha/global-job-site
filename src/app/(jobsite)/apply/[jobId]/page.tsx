@@ -1,4 +1,3 @@
-// components/JobApplicationForm.tsx
 "use client";
 import React, { useEffect, useState } from "react";
 import { Send } from "lucide-react";
@@ -7,26 +6,33 @@ import { applyJob } from "@/services/jobApplication";
 import { useParams, useRouter } from "next/navigation";
 import { getJobById } from "@/services/jobServices";
 
-const JobApplicationForm = ({ onClose }: { onClose: () => void }) => {
-  const { jobId }: any = useParams();
+const JobApplicationForm = () => {
+  const { jobId } = useParams<{ jobId: string }>();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     message: "",
   });
-  const[jobData,setJobData]=useState<any>()
+  const [jobData, setJobData] = useState<any>(null);
   const router = useRouter();
   const [resume, setResume] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
- const getJobDetail = async () => {
-    const responseDetail = await getJobById(jobId);
-    console.log(responseDetail, "responseDetail");
-    setJobData(responseDetail);
+
+  const getJobDetail = async () => {
+    try {
+      const responseDetail = await getJobById(jobId);
+      console.log(responseDetail, "responseDetail");
+      setJobData(responseDetail);
+    } catch (error) {
+      console.error("Error fetching job details:", error);
+    }
   };
+
   useEffect(() => {
-    getJobDetail();
+    if (jobId) getJobDetail();
   }, [jobId]);
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -51,45 +57,38 @@ const JobApplicationForm = ({ onClose }: { onClose: () => void }) => {
     }
 
     setIsLoading(true);
-    const form = new FormData();
-    form.append("name", formData.name);
-    form.append("email", formData.email);
-    form.append("message", formData.message);
-    form.append("jobId", jobId);
-    form.append("jobTitle", jobData?.title);
-    form.append("resume", resume);
+    try {
+      const form = new FormData();
+      form.append("name", formData.name);
+      form.append("email", formData.email);
+      form.append("message", formData.message);
+      form.append("jobId", jobId);
+      form.append("jobTitle", jobData?.title || "");
+      form.append("resume", resume);
 
-    const response = await applyJob(form);
+      const response = await applyJob(form);
 
-    if (response?.status === 201) {
-      setIsLoading(true);
-      toast({
-        title: "Application Submitted",
-        description: "We've received your application.",
-      });
-      setFormData({
-        name: "",
-        email: "",
-        message: "",
-      });
-      setResume(null);
-      return router.push("/jobs");
-    } else {
-      setIsLoading(true);
+      if (response?.status === 201) {
+        toast({
+          title: "Application Submitted",
+          description: "We've received your application.",
+        });
+        setFormData({ name: "", email: "", message: "" });
+        setResume(null);
+        router.push("/jobs");
+      } else {
+        throw new Error("Submission failed");
+      }
+    } catch (error) {
+      console.error("Job application failed:", error);
       toast({
         title: "Submission Failed",
         description: "Please try again later.",
         variant: "destructive",
       });
-      setFormData({
-        name: "",
-        email: "",
-        message: "",
-      });
-      setResume(null);
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (

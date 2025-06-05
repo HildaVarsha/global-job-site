@@ -4,6 +4,7 @@ import { ArrowRight, Briefcase, Menu, Sparkles, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui";
+import { safeLocalStorage } from "@/lib/utils";
 
 const adminMenuItems = [
   { label: "Home", path: "/" },
@@ -31,7 +32,7 @@ const userMenuItems = [
 ];
 const Navbar = () => {
   const pathname = usePathname();
-  const user: any = JSON.parse(localStorage.getItem("user") || "{}");
+  const user: any = JSON.parse(safeLocalStorage.getItem("user") || "{}");
   const [isLoaded, setIsLoaded] = useState(false);
   const [activePath, setActivePath] = useState(pathname);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -106,7 +107,7 @@ const Navbar = () => {
               </button>
             </div>
           ) : (
-            <Avatar>
+            <Avatar className="hidden md:flex ">
               <AvatarImage src="https://github.com/shadcn.png" />
               <AvatarFallback>{user?.name}</AvatarFallback>
             </Avatar>
@@ -140,20 +141,30 @@ const Navbar = () => {
                 {item.label}
               </button>
             ))}
-            <div className="flex flex-col space-y-3 px-4 pt-3 border-t border-purple-100">
-              <button
-                onClick={() => router.push("/login")}
-                className="px-4 py-3 text-purple-600 font-medium hover:text-purple-700 transition-all duration-300 text-left hover:bg-purple-50 rounded-lg"
-              >
-                Login
-              </button>
-              <button
-                onClick={() => router.push("/register")}
-                className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 hover:scale-105 shadow-lg"
-              >
-                Sign Up
-              </button>
-            </div>
+            {!user?.role ? (
+              <div className="flex flex-col space-y-3 px-4 pt-3 border-t border-purple-100">
+                <button
+                  onClick={() => router.push("/login")}
+                  className="px-4 py-3 text-purple-600 font-medium hover:text-purple-700 transition-all duration-300 text-left hover:bg-purple-50 rounded-lg"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => router.push("/register")}
+                  className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 hover:scale-105 shadow-lg"
+                >
+                  Sign Up
+                </button>
+              </div>
+            ) : (
+              <div className="md:hidden flex items-center gap-2">
+                <Avatar className="">
+                  <AvatarImage src="https://github.com/shadcn.png" />
+                  <AvatarFallback>{user?.name}</AvatarFallback>
+                </Avatar>
+                <p>{user?.name}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

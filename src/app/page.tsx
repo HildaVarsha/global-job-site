@@ -6,11 +6,12 @@ import { getAllJobs } from "@/services/jobServices";
 
 import { HomeCategory, HomeHeroSection, HomeJobs } from "@/components/home";
 import Link from "next/link";
+import { safeLocalStorage } from "@/lib/utils";
 
 const JobPortalHomepage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [latestJob, setLatestJob] = useState([]);
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const user = JSON.parse(safeLocalStorage.getItem("user") || "{}");
   const getJobList = async () => {
     const response = await getAllJobs();
     console.log(response, "response");

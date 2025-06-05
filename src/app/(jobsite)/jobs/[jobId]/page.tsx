@@ -19,11 +19,12 @@ import { useParams } from "next/navigation";
 import { getJobById } from "@/services/jobServices";
 import Link from "next/link";
 import moment from "moment";
+import { safeLocalStorage } from "@/lib/utils";
 
 const JobPostScreen = () => {
   const { jobId }: any = useParams();
   console.log(jobId, "jobId");
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const user = JSON.parse(safeLocalStorage.getItem("user") || "{}");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
