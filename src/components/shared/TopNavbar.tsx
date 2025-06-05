@@ -39,7 +39,7 @@ const Navbar = () => {
   const menuArray =
     user?.role == "admin"
       ? adminMenuItems
-      : user == "jobPoster"
+      : user?.role == "jobPoster"
       ? jobPosterMenuItems
       : userMenuItems;
   useEffect(() => {

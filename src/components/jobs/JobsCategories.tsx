@@ -17,8 +17,8 @@ const JobsCategories = ({ featuredCategories, isLoaded }: any) => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {featuredCategories?.map((category:any, index:number) => (
-            <Link href={"/coming-soon"}>
+          {featuredCategories?.map((category: any, index: number) => (
+            <Link href={"/coming-soon"} key={category.id}>
               <div
                 key={category.id}
                 className={`group cursor-pointer transform transition-all duration-500 hover:-translate-y-2 ${

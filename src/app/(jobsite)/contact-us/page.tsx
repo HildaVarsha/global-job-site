@@ -68,7 +68,7 @@ const ContactUsPage = () => {
     {
       icon: Mail,
       title: "Email Us",
-      value: "contact@jobportal.com",
+      value: "info@theglobalrecruitment.com",
       description: "Get in touch via email",
     },
     {
@@ -80,8 +80,8 @@ const ContactUsPage = () => {
     {
       icon: MapPin,
       title: "Visit Us",
-      value: "123 Business Ave, Suite 100",
-      description: "New York, NY 10001",
+      value: "292-294 Plashet Grove",
+      description: "London,E6 1DQ",
     },
   ];
 
