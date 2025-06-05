@@ -10,6 +10,9 @@ import {
   Users,
   TrendingUp,
 } from "lucide-react";
+import { createContactForm } from "@/services/contactUsService";
+import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
 
 const ContactUsPage = () => {
   const [formData, setFormData] = useState({
@@ -19,9 +22,8 @@ const ContactUsPage = () => {
     subject: "",
     message: "",
   });
-  const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const { toast } = useToast();
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -36,16 +38,13 @@ const ContactUsPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    setIsLoading(false);
-    setIsSubmitted(true);
-
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
+    const response = await createContactForm(formData);
+    if (response?.status == 201) {
+      setIsLoading(false);
+      toast({
+        title: "Contact form submitted successfully",
+        description: "Our team will contact withing 4 working days",
+      });
       setFormData({
         name: "",
         email: "",
@@ -53,14 +52,23 @@ const ContactUsPage = () => {
         subject: "",
         message: "",
       });
-    }, 3000);
+    } else {
+      setIsLoading(false);
+      setFormData({
+        name: "",
+        email: "",
+        company: "",
+        subject: "",
+        message: "",
+      });
+    }
   };
 
   const contactInfo = [
     {
       icon: Mail,
       title: "Email Us",
-      value: "contact@jobportal.com",
+      value: "info@theglobalrecruitment.com",
       description: "Get in touch via email",
     },
     {
@@ -72,8 +80,8 @@ const ContactUsPage = () => {
     {
       icon: MapPin,
       title: "Visit Us",
-      value: "123 Business Ave, Suite 100",
-      description: "New York, NY 10001",
+      value: "292-294 Plashet Grove",
+      description: "London,E6 1DQ",
     },
   ];
 
@@ -189,130 +197,109 @@ const ContactUsPage = () => {
                 Send us a Message
               </h2>
 
-              {!isSubmitted ? (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="group">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Full Name *
-                      </label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white/50 backdrop-blur-sm group-hover:bg-white/70"
-                        placeholder="Enter your full name"
-                      />
-                    </div>
-
-                    <div className="group">
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Email Address *
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white/50 backdrop-blur-sm group-hover:bg-white/70"
-                        placeholder="Enter your email"
-                      />
-                    </div>
-                  </div>
-
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="group">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Company/Organization
+                      Full Name *
                     </label>
                     <input
                       type="text"
-                      name="company"
-                      value={formData.company}
+                      name="name"
+                      value={formData.name}
                       onChange={handleInputChange}
+                      required
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white/50 backdrop-blur-sm group-hover:bg-white/70"
-                      placeholder="Enter your company name"
+                      placeholder="Enter your full name"
                     />
                   </div>
 
                   <div className="group">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Subject *
+                      Email Address *
                     </label>
-                    <select
-                      name="subject"
-                      value={formData.subject}
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
                       onChange={handleInputChange}
                       required
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white/50 backdrop-blur-sm group-hover:bg-white/70"
-                    >
-                      <option value="">Select a subject</option>
-                      <option value="general">General Inquiry</option>
-                      <option value="employer">Employer Services</option>
-                      <option value="jobseeker">Job Seeker Support</option>
-                      <option value="partnership">
-                        Partnership Opportunities
-                      </option>
-                      <option value="technical">Technical Support</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-
-                  <div className="group">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Message *
-                    </label>
-                    <textarea
-                      name="message"
-                      value={formData.message}
-                      onChange={handleInputChange}
-                      required
-                      rows={6}
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white/50 backdrop-blur-sm resize-none group-hover:bg-white/70"
-                      placeholder="Tell us how we can help you..."
+                      placeholder="Enter your email"
                     />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isLoading}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 px-8 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
-                  >
-                    {isLoading ? (
-                      <>
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                        <span>Sending...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-5 h-5" />
-                        <span>Send Message</span>
-                      </>
-                    )}
-                  </button>
-                </form>
-              ) : (
-                <div className="text-center py-12 animate-fade-in">
-                  <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
-                    <CheckCircle className="w-10 h-10 text-green-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                    Message Sent Successfully!
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    Thank you for reaching out. We'll get back to you within 24
-                    hours.
-                  </p>
-                  <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                    <div
-                      className="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full animate-pulse"
-                      style={{ width: "100%" }}
-                    ></div>
                   </div>
                 </div>
-              )}
+
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Company/Organization
+                  </label>
+                  <input
+                    type="text"
+                    name="company"
+                    value={formData.company}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white/50 backdrop-blur-sm group-hover:bg-white/70"
+                    placeholder="Enter your company name"
+                  />
+                </div>
+
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Subject *
+                  </label>
+                  <select
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white/50 backdrop-blur-sm group-hover:bg-white/70"
+                  >
+                    <option value="">Select a subject</option>
+                    <option value="general">General Inquiry</option>
+                    <option value="employer">Employer Services</option>
+                    <option value="jobseeker">Job Seeker Support</option>
+                    <option value="partnership">
+                      Partnership Opportunities
+                    </option>
+                    <option value="technical">Technical Support</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div className="group">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Message *
+                  </label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    required
+                    rows={6}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-300 bg-white/50 backdrop-blur-sm resize-none group-hover:bg-white/70"
+                    placeholder="Tell us how we can help you..."
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 px-8 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:transform-none"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5" />
+                      <span>Send Message</span>
+                    </>
+                  )}
+                </button>
+              </form>
             </div>
           </div>
         </div>
@@ -326,12 +313,14 @@ const ContactUsPage = () => {
               to connect talent with opportunity.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white text-blue-600 font-semibold px-8 py-3 rounded-xl hover:bg-blue-50 transition-all duration-300 transform hover:scale-105">
+              {/* <button className="bg-white text-blue-600 font-semibold px-8 py-3 rounded-xl hover:bg-blue-50 transition-all duration-300 transform hover:scale-105">
                 Post a Job
-              </button>
-              <button className="border-2 border-white text-white font-semibold px-8 py-3 rounded-xl hover:bg-white hover:text-blue-600 transition-all duration-300 transform hover:scale-105">
-                Find Jobs
-              </button>
+              </button> */}
+              <Link href={"/jobs"}>
+                <button className="border-2 border-white text-white font-semibold px-8 py-3 rounded-xl hover:bg-white hover:text-blue-600 transition-all duration-300 transform hover:scale-105">
+                  Find Jobs
+                </button>
+              </Link>
             </div>
           </div>
         </div>

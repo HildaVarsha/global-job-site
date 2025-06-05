@@ -3,8 +3,10 @@
 import { Briefcase } from "lucide-react";
 import React from "react";
 import Link from "next/link";
+import { safeLocalStorage } from "@/lib/utils";
 
 const Footer = () => {
+  const user: any = JSON.parse(safeLocalStorage.getItem("user") || "{}");
   return (
     <footer className="bg-gray-900 text-white py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -14,7 +16,7 @@ const Footer = () => {
               <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
                 <Briefcase className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold">CareerLink</span>
+              <span className="text-xl font-bold">Global Recruitment</span>
             </div>
             <p className="text-gray-400 leading-relaxed">
               Connecting talented professionals with exceptional opportunities
@@ -64,12 +66,14 @@ const Footer = () => {
             <h4 className="font-semibold text-lg mb-4">For Employers</h4>
             <ul className="space-y-2 text-gray-400">
               <li>
-                <Link
-                  href="/post-jobs"
-                  className="hover:text-white transition-colors"
-                >
-                  Post Jobs
-                </Link>
+                {user?.role == "admin" && user?.role == "jobPoster" && (
+                  <Link
+                    href="/post-jobs"
+                    className="hover:text-white transition-colors"
+                  >
+                    Post Jobs
+                  </Link>
+                )}
               </li>
               <li>
                 <Link

@@ -3,53 +3,68 @@ import React, { useState, useEffect } from "react";
 import {
   MapPin,
   Clock,
-  DollarSign,
-  Users,
   BookmarkPlus,
   Share2,
   ArrowLeft,
   Building2,
   Calendar,
   Award,
-  CheckCircle,
   Star,
   Heart,
   Briefcase,
+  GraduationCap,
+  PoundSterling,
 } from "lucide-react";
+import { useParams } from "next/navigation";
+import { getJobById } from "@/services/jobServices";
+import Link from "next/link";
+import moment from "moment";
+import { safeLocalStorage } from "@/lib/utils";
 
 const JobPostScreen = () => {
+  const { jobId }: any = useParams();
+  console.log(jobId, "jobId");
+  const user = JSON.parse(safeLocalStorage.getItem("user") || "{}");
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [activeTab, setActiveTab] = useState("description");
-
+  const [jobData, setJobData] = useState<any>();
   useEffect(() => {
     setIsVisible(true);
   }, []);
-
-  const jobData = {
-    title: "Senior Frontend Developer",
-    company: "TechFlow Solutions",
-    location: "San Francisco, CA",
-    type: "Full-time",
-    salary: "$120k - $160k",
-    postedTime: "2 days ago",
-    applicants: 47,
-    logo: "🚀",
-    tags: ["React", "TypeScript", "Next.js", "Tailwind CSS"],
-    requirements: [
-      "5+ years of frontend development experience",
-      "Expert knowledge of React and TypeScript",
-      "Experience with modern build tools and CI/CD",
-      "Strong understanding of responsive design principles",
-    ],
-    benefits: [
-      "Competitive salary and equity package",
-      "Health, dental, and vision insurance",
-      "Flexible work arrangements",
-      "Professional development budget",
-    ],
+  const getJobDetail = async () => {
+    const responseDetail = await getJobById(jobId);
+    console.log(responseDetail, "responseDetail");
+    setJobData(responseDetail);
   };
+  useEffect(() => {
+    getJobDetail();
+  }, [jobId]);
+
+  // const jobData = {
+  //   title: "Senior Frontend Developer",
+  //   company: "TechFlow Solutions",
+  //   location: "San Francisco, CA",
+  //   type: "Full-time",
+  //   salary: "$120k - $160k",
+  //   postedTime: "2 days ago",
+  //   applicants: 47,
+  //   logo: "🚀",
+  //   tags: ["React", "TypeScript", "Next.js", "Tailwind CSS"],
+  //   requirements: [
+  //     "5+ years of frontend development experience",
+  //     "Expert knowledge of React and TypeScript",
+  //     "Experience with modern build tools and CI/CD",
+  //     "Strong understanding of responsive design principles",
+  //   ],
+  //   benefits: [
+  //     "Competitive salary and equity package",
+  //     "Health, dental, and vision insurance",
+  //     "Flexible work arrangements",
+  //     "Professional development budget",
+  //   ],
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4">
@@ -60,10 +75,12 @@ const JobPostScreen = () => {
             isVisible ? "translate-y-0 opacity-100" : "-translate-y-8 opacity-0"
           }`}
         >
-          <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95">
-            <ArrowLeft className="w-4 h-4" />
-            <span className="font-medium">Back to Jobs</span>
-          </button>
+          <Link href={"/jobs"}>
+            <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white shadow-sm hover:shadow-md transition-all duration-200 hover:scale-105 active:scale-95">
+              <ArrowLeft className="w-4 h-4" />
+              <span className="font-medium">Back to Jobs</span>
+            </button>
+          </Link>
 
           <div className="flex items-center gap-3">
             <button
@@ -101,16 +118,16 @@ const JobPostScreen = () => {
               <div className="flex items-start justify-between mb-6">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-2xl animate-pulse">
-                    {jobData.logo}
+                    <GraduationCap className="w-12 h-12" />
                   </div>
                   <div>
                     <h1 className="text-3xl font-bold mb-2 animate-fade-in">
-                      {jobData.title}
+                      {jobData?.title}
                     </h1>
                     <div className="flex items-center gap-2 text-blue-100">
                       <Building2 className="w-4 h-4" />
                       <span className="text-lg font-medium">
-                        {jobData.company}
+                        {jobData?.company}
                       </span>
                     </div>
                   </div>
@@ -132,10 +149,13 @@ const JobPostScreen = () => {
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
-                  { icon: MapPin, label: jobData.location },
-                  { icon: Clock, label: jobData.type },
-                  { icon: DollarSign, label: jobData.salary },
-                  { icon: Users, label: `${jobData.applicants} applicants` },
+                  { icon: MapPin, label: jobData?.location },
+                  { icon: Clock, label: jobData?.jobType },
+                  {
+                    icon: PoundSterling,
+                    label: ` ${jobData?.minSalary}- ${jobData?.maxSalary}`,
+                  },
+                  { icon: GraduationCap, label: `Job Id- ${jobData?.id}` },
                 ].map((item, index) => (
                   <div
                     key={index}
@@ -147,7 +167,7 @@ const JobPostScreen = () => {
                     style={{ transitionDelay: `${300 + index * 100}ms` }}
                   >
                     <item.icon className="w-4 h-4 text-blue-200" />
-                    <span className="text-sm font-medium">{item.label}</span>
+                    <span className="text-sm font-medium">{item?.label}</span>
                   </div>
                 ))}
               </div>
@@ -164,7 +184,7 @@ const JobPostScreen = () => {
                   : "translate-y-4 opacity-0"
               }`}
             >
-              {jobData.tags.map((tag, index) => (
+              {jobData?.skills?.map((tag: any, index: any) => (
                 <span
                   key={tag}
                   className={`px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 rounded-full text-sm font-medium border border-blue-100 hover:border-blue-200 hover:shadow-md transition-all duration-200 hover:scale-105 cursor-default transform ${
@@ -225,15 +245,11 @@ const JobPostScreen = () => {
                       About This Role
                     </h3>
                     <p className="text-gray-600 leading-relaxed">
-                      We are seeking a talented Senior Frontend Developer to
-                      join our dynamic team at TechFlow Solutions. You will be
-                      responsible for building cutting-edge web applications
-                      using modern technologies and ensuring exceptional user
-                      experiences across all platforms.
+                      {jobData?.description}
                     </p>
                   </div>
 
-                  <div>
+                  {/* <div>
                     <h3 className="text-xl font-semibold mb-4 text-gray-800">
                       Key Responsibilities
                     </h3>
@@ -256,7 +272,7 @@ const JobPostScreen = () => {
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               )}
 
@@ -266,7 +282,7 @@ const JobPostScreen = () => {
                     What We&apos;re Looking For
                   </h3>
                   <div className="space-y-4">
-                    {jobData.requirements.map((req, index) => (
+                    {jobData?.requirements?.map((req: any, index: number) => (
                       <div
                         key={index}
                         className="flex items-start gap-3 p-3 bg-gradient-to-r from-blue-50 to-transparent rounded-lg border-l-4 border-blue-400 hover:border-blue-500 transition-all duration-200 hover:shadow-md"
@@ -288,7 +304,7 @@ const JobPostScreen = () => {
                     What We Offer
                   </h3>
                   <div className="grid md:grid-cols-2 gap-4">
-                    {jobData.benefits.map((benefit, index) => (
+                    {jobData?.benefits?.map((benefit: any, index: number) => (
                       <div
                         key={index}
                         className="flex items-start gap-3 p-4 bg-gradient-to-r from-green-50 to-transparent rounded-xl border border-green-100 hover:border-green-200 hover:shadow-md transition-all duration-200 hover:scale-105"
@@ -315,15 +331,20 @@ const JobPostScreen = () => {
                   : "translate-y-8 opacity-0"
               }`}
             >
-              <button className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 text-white py-4 px-8 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center gap-3 group">
-                <Briefcase className="w-5 h-5 group-hover:rotate-12 transition-transform duration-200" />
-                Apply for This Position
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 rounded-xl"></div>
-              </button>
+              <Link href={user ? `/apply/${jobData?.id}` : "/login"}>
+                <button className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 text-white py-4 px-8 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center gap-3 group">
+                  <Briefcase className="w-5 h-5 group-hover:rotate-12 transition-transform duration-200" />
+                  Apply for This Position
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 rounded-xl"></div>
+                </button>
+              </Link>
 
               <div className="flex items-center justify-center gap-2 mt-4 text-sm text-gray-500">
                 <Calendar className="w-4 h-4" />
-                <span>Posted {jobData.postedTime}</span>
+                <span>
+                  Posted{" "}
+                  {moment(jobData?.createdAt).format("DD/MM/YYYY, HH:mm")}
+                </span>
               </div>
             </div>
           </div>

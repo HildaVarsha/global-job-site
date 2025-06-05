@@ -3,8 +3,10 @@
 import { ArrowRight, Briefcase, Menu, Sparkles, X } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui";
+import { safeLocalStorage } from "@/lib/utils";
 
-const menuItems = [
+const adminMenuItems = [
   { label: "Home", path: "/" },
   { label: "Jobs", path: "/jobs" },
   //   { label: "Companies", path: "/companies" },
@@ -13,14 +15,34 @@ const menuItems = [
   { label: "User", path: "/users" },
   { label: "Contact us", path: "/contact-us" },
 ];
+const jobPosterMenuItems = [
+  { label: "Home", path: "/" },
+  { label: "Jobs", path: "/jobs" },
+  //   { label: "Companies", path: "/companies" },
+  { label: "Post a Job", path: "/post-jobs" },
+  { label: "Job Applications", path: "/job-applications" },
+  // { label: "User", path: "/users" },
+  { label: "Contact us", path: "/contact-us" },
+];
 
+const userMenuItems = [
+  { label: "Home", path: "/" },
+  { label: "Jobs", path: "/jobs" },
+  { label: "Contact us", path: "/contact-us" },
+];
 const Navbar = () => {
   const pathname = usePathname();
-
+  const user: any = JSON.parse(safeLocalStorage.getItem("user") || "{}");
   const [isLoaded, setIsLoaded] = useState(false);
   const [activePath, setActivePath] = useState(pathname);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const router = useRouter();
+  const menuArray =
+    user?.role == "admin"
+      ? adminMenuItems
+      : user?.role == "jobPoster"
+      ? jobPosterMenuItems
+      : userMenuItems;
   useEffect(() => {
     const timeout = setTimeout(() => setIsLoaded(true), 100);
     return () => clearTimeout(timeout);
@@ -28,7 +50,6 @@ const Navbar = () => {
   useEffect(() => {
     setActivePath(pathname);
   }, [pathname]);
-
   return (
     <nav
       className={`bg-white/90 backdrop-blur-xl shadow-2xl border-b border-purple-100/50 sticky top-0 z-50 transition-all duration-700 ${
@@ -47,10 +68,9 @@ const Navbar = () => {
             </span>
             <Sparkles className="h-5 w-5 text-purple-500 animate-pulse" />
           </div>
-
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center space-x-8">
-            {menuItems.map((item) => (
+            {menuArray?.map((item) => (
               <button
                 key={item.label}
                 onClick={() => router.push(item?.path)}
@@ -65,28 +85,33 @@ const Navbar = () => {
               </button>
             ))}
           </div>
-
           {/* Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            <button
-              onClick={() => router.push("/login")}
-              className="px-6 py-2 text-purple-600 font-medium hover:text-purple-700 transition-all duration-300 hover:scale-105 relative overflow-hidden group"
-            >
-              <span className="relative z-10">Login</span>
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></div>
-            </button>
-            <button
-              onClick={() => router.push("/register")}
-              className="px-8 py-3 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 relative overflow-hidden group"
-            >
-              <span className="relative z-10 flex items-center space-x-2">
-                <span>Sign Up</span>
-                <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
-              </span>
-              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </button>
-          </div>
-
+          {!user?.role ? (
+            <div className="hidden md:flex items-center space-x-4">
+              <button
+                onClick={() => router.push("/login")}
+                className="px-6 py-2 text-purple-600 font-medium hover:text-purple-700 transition-all duration-300 hover:scale-105 relative overflow-hidden group"
+              >
+                <span className="relative z-10">Login</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-blue-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></div>
+              </button>
+              <button
+                onClick={() => router.push("/register")}
+                className="px-8 py-3 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-105 relative overflow-hidden group"
+              >
+                <span className="relative z-10 flex items-center space-x-2">
+                  <span>Sign Up</span>
+                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+                </span>
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </button>
+            </div>
+          ) : (
+            <Avatar className="hidden md:flex ">
+              <AvatarImage src="https://github.com/shadcn.png" />
+              <AvatarFallback>{user?.name}</AvatarFallback>
+            </Avatar>
+          )}
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -107,7 +132,7 @@ const Navbar = () => {
           } overflow-hidden border-t border-purple-100/50`}
         >
           <div className="flex flex-col space-y-3">
-            {menuItems.map((item) => (
+            {menuArray?.map((item) => (
               <button
                 key={item.label}
                 onClick={() => router.push(item?.path)}
@@ -116,20 +141,30 @@ const Navbar = () => {
                 {item.label}
               </button>
             ))}
-            <div className="flex flex-col space-y-3 px-4 pt-3 border-t border-purple-100">
-              <button
-                onClick={() => router.push("/login")}
-                className="px-4 py-3 text-purple-600 font-medium hover:text-purple-700 transition-all duration-300 text-left hover:bg-purple-50 rounded-lg"
-              >
-                Login
-              </button>
-              <button
-                onClick={() => router.push("/register")}
-                className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 hover:scale-105 shadow-lg"
-              >
-                Sign Up
-              </button>
-            </div>
+            {!user?.role ? (
+              <div className="flex flex-col space-y-3 px-4 pt-3 border-t border-purple-100">
+                <button
+                  onClick={() => router.push("/login")}
+                  className="px-4 py-3 text-purple-600 font-medium hover:text-purple-700 transition-all duration-300 text-left hover:bg-purple-50 rounded-lg"
+                >
+                  Login
+                </button>
+                <button
+                  onClick={() => router.push("/register")}
+                  className="px-4 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all duration-300 hover:scale-105 shadow-lg"
+                >
+                  Sign Up
+                </button>
+              </div>
+            ) : (
+              <div className="md:hidden flex items-center gap-2">
+                <Avatar className="">
+                  <AvatarImage src="https://github.com/shadcn.png" />
+                  <AvatarFallback>{user?.name}</AvatarFallback>
+                </Avatar>
+                <p>{user?.name}</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

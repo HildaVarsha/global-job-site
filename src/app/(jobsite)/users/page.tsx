@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Search,
   Filter,
@@ -18,6 +18,7 @@ import {
   Clock,
   Briefcase,
 } from "lucide-react";
+import { getAllUsers } from "@/services/userServices";
 
 interface User {
   id: string;
@@ -181,20 +182,28 @@ const StatusBadge: React.FC<{ status: User["status"] }> = ({ status }) => {
 };
 
 const RoleBadge: React.FC<{ role: User["role"] }> = ({ role }) => {
-  const roleConfig = {
+  const roleConfig: Record<
+    string,
+    {
+      bg: string;
+      text: string;
+      ring: string;
+      icon: React.ElementType;
+    }
+  > = {
     admin: {
       bg: "bg-purple-100",
       text: "text-purple-800",
       ring: "ring-purple-600/20",
       icon: Shield,
     },
-    recruiter: {
+    employee: {
       bg: "bg-blue-100",
       text: "text-blue-800",
       ring: "ring-blue-600/20",
       icon: Briefcase,
     },
-    candidate: {
+    jobPoster: {
       bg: "bg-orange-100",
       text: "text-orange-800",
       ring: "ring-orange-600/20",
@@ -209,11 +218,17 @@ const RoleBadge: React.FC<{ role: User["role"] }> = ({ role }) => {
   };
 
   const config = roleConfig[role];
+
+  if (!config) {
+    return (
+      <span className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 ring-1 ring-inset ring-gray-300">
+        Unknown
+      </span>
+    );
+  }
+
   const Icon = config.icon;
-  const displayName =
-    role === "hr_manager"
-      ? "HR Manager"
-      : role.charAt(0).toUpperCase() + role.slice(1);
+  const displayName = role?.charAt(0).toUpperCase() + role.slice(1);
 
   return (
     <span
@@ -226,15 +241,15 @@ const RoleBadge: React.FC<{ role: User["role"] }> = ({ role }) => {
 };
 
 const UsersListingTable: React.FC = () => {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<any>();
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortField, setSortField] = useState<keyof User>("joinedDate");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
-  const filteredUsers = users.filter((user) => {
-    const fullName = `${user.firstName} ${user.lastName}`.toLowerCase();
+  const filteredUsers = users?.filter((user: any) => {
+    const fullName = `${user.name}`.toLowerCase();
     const matchesSearch =
       fullName.includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -244,17 +259,17 @@ const UsersListingTable: React.FC = () => {
       statusFilter === "all" || user.status === statusFilter;
     return matchesSearch && matchesRole && matchesStatus;
   });
-  const sortedUsers = [...filteredUsers].sort((a, b) => {
-    const aValue = a[sortField];
-    const bValue = b[sortField];
-    const direction = sortDirection === "asc" ? 1 : -1;
+  // const sortedUsers = [...filteredUsers]?.sort((a, b) => {
+  //   const aValue = a[sortField];
+  //   const bValue = b[sortField];
+  //   const direction = sortDirection === "asc" ? 1 : -1;
 
-    if (typeof aValue === "string" && typeof bValue === "string") {
-      return aValue.localeCompare(bValue) * direction;
-    }
+  //   if (typeof aValue === "string" && typeof bValue === "string") {
+  //     return aValue.localeCompare(bValue) * direction;
+  //   }
 
-    return ((aValue as any) - (bValue as any)) * direction;
-  });
+  //   return ((aValue as any) - (bValue as any)) * direction;
+  // });
 
   const handleSort = (field: keyof User) => {
     if (sortField === field) {
@@ -294,8 +309,8 @@ const UsersListingTable: React.FC = () => {
     });
   };
 
-  const getInitials = (firstName: string, lastName: string) => {
-    return `${firstName.charAt(0)}${lastName.charAt(0)}`;
+  const getInitials = (firstName: string) => {
+    return `${firstName.charAt(0)}`;
   };
 
   const generateGradient = (name: string) => {
@@ -307,9 +322,17 @@ const UsersListingTable: React.FC = () => {
       "from-indigo-500 to-blue-600",
       "from-teal-500 to-cyan-600",
     ];
-    const index = name.length % gradients.length;
+    const index = name?.length % gradients.length;
     return gradients[index];
   };
+  const getUsers = async () => {
+    const response = await getAllUsers();
+    setUsers(response);
+    console.log(response, "response");
+  };
+  useEffect(() => {
+    getUsers();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-indigo-50 p-6">
@@ -334,7 +357,7 @@ const UsersListingTable: React.FC = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Users</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {users.length}
+                  {users?.length}
                 </p>
               </div>
             </div>
@@ -354,7 +377,7 @@ const UsersListingTable: React.FC = () => {
                   Active Users
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {users.filter((u) => u.status === "active").length}
+                  {users?.filter((u: any) => u.status === "active").length}
                 </p>
               </div>
             </div>
@@ -370,7 +393,7 @@ const UsersListingTable: React.FC = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Candidates</p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {users.filter((u) => u.role === "candidate").length}
+                  {users?.filter((u: any) => u.role === "employee").length}
                 </p>
               </div>
             </div>
@@ -388,7 +411,7 @@ const UsersListingTable: React.FC = () => {
                   Staff Members
                 </p>
                 <p className="text-2xl font-bold text-gray-900">
-                  {users.filter((u) => u.role !== "candidate").length}
+                  {users?.filter((u: any) => u.role == "admin")?.length}
                 </p>
               </div>
             </div>
@@ -453,7 +476,7 @@ const UsersListingTable: React.FC = () => {
                     <SortButton field="role">Role</SortButton>
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    <SortButton field="status">Status</SortButton>
+                    <SortButton field="status">Email</SortButton>
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     <SortButton field="joinedDate">Joined Date</SortButton>
@@ -467,7 +490,7 @@ const UsersListingTable: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {sortedUsers.map((user, index) => (
+                {users?.map((user: any, index: number) => (
                   <React.Fragment key={user.id}>
                     <tr
                       className="hover:bg-gray-50 transition-all duration-200 cursor-pointer group animate-fade-in-row"
@@ -481,15 +504,15 @@ const UsersListingTable: React.FC = () => {
                           <div className="flex-shrink-0 h-10 w-10">
                             <div
                               className={`h-10 w-10 rounded-full bg-gradient-to-r ${generateGradient(
-                                user.firstName
+                                user.name
                               )} flex items-center justify-center text-white font-semibold transition-transform duration-200 group-hover:scale-105`}
                             >
-                              {getInitials(user.firstName, user.lastName)}
+                              {getInitials(user.name)}
                             </div>
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors duration-200">
-                              {user.firstName} {user.lastName}
+                              {user.name}
                             </div>
                             <div className="text-sm text-gray-500 flex items-center">
                               <Mail className="h-3 w-3 mr-1" />
@@ -507,18 +530,20 @@ const UsersListingTable: React.FC = () => {
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <StatusBadge status={user.status} />
+                        <StatusBadge
+                          status={user.status ? user.status : "active"}
+                        />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center text-sm text-gray-500">
                           <Calendar className="h-4 w-4 mr-1" />
-                          {formatDate(user.joinedDate)}
+                          {formatDate(user.createdAt)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center text-sm text-gray-500">
                           <Clock className="h-4 w-4 mr-1" />
-                          {formatDate(user.lastLogin)}
+                          {formatDate(user.updatedAt)}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -588,7 +613,7 @@ const UsersListingTable: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="mt-6 flex items-center justify-between text-sm text-gray-500 animate-fade-in">
+        {/* <div className="mt-6 flex items-center justify-between text-sm text-gray-500 animate-fade-in">
           <div>
             Showing {sortedUsers.length} of {users.length} users
           </div>
@@ -606,7 +631,7 @@ const UsersListingTable: React.FC = () => {
               Next
             </button>
           </div>
-        </div>
+        </div> */}
       </div>
 
       <style jsx>{`
