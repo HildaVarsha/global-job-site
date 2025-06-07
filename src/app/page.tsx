@@ -30,7 +30,9 @@ const JobPortalHomepage = () => {
       {/* Categories Section */}
       <HomeCategory />
       {/* Featured Jobs */}
+
       <HomeJobs featuredJobs={latestJob} />
+
       {/* CTA Section */}
       {!user && (
         <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600">

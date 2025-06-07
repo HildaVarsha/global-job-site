@@ -74,8 +74,8 @@ const ContactUsPage = () => {
     {
       icon: Phone,
       title: "Call Us",
-      value: "+1 (555) 123-4567",
-      description: "Monday to Friday, 9AM - 6PM",
+      value: "+44-20-3490-9639",
+      description: "Monday to Friday, 9AM - 5PM",
     },
     {
       icon: MapPin,

@@ -64,7 +64,7 @@ const Navbar = () => {
               <Briefcase className="h-6 w-6 text-white" />
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 bg-clip-text text-transparent">
-              Global Recruitment
+              Global Recruitment Limited
             </span>
             <Sparkles className="h-5 w-5 text-purple-500 animate-pulse" />
           </div>
